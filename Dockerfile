@@ -15,26 +15,14 @@ COPY --from=build /usr/src/wireproxy/wireproxy /usr/bin/wireproxy
 
 WORKDIR /app
 
-# Tiny HTTP server for Render
 RUN printf '%s\n' \
 '#!/bin/sh' \
 'set -e' \
-'' \
-'PORT="${PORT:-3000}"' \
-'' \
-'# Start a tiny HTTP server for Render health checks' \
+'PORT="${PORT:-10000}"' \
 'python3 -m http.server "$PORT" --bind 0.0.0.0 >/dev/null 2>&1 &' \
-'' \
-'# Start wireproxy' \
-'exec /usr/bin/wireproxy --config /etc/wireproxy/config' \
+'exec /usr/bin/wireproxy --config /etc/secrets/config' \
 > /app/start.sh && chmod +x /app/start.sh
 
-VOLUME ["/etc/wireproxy"]
-
-EXPOSE 3000
+EXPOSE 10000
 
 ENTRYPOINT ["/app/start.sh"]
-
-LABEL org.opencontainers.image.title="wireproxy"
-LABEL org.opencontainers.image.description="Wireguard client that exposes itself as a socks5 proxy"
-LABEL org.opencontainers.image.licenses="ISC"
